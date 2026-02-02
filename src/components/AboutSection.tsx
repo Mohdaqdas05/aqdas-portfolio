@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { GraduationCap, Target, Lightbulb } from "lucide-react";
+import { GraduationCap, Target, Lightbulb, Zap } from "lucide-react";
 
 const AboutSection = () => {
   const ref = useRef(null);
@@ -25,9 +25,26 @@ const AboutSection = () => {
     },
   ];
 
+  const stats = [
+    { value: "2027", label: "Expected Graduation", icon: GraduationCap },
+    { value: "AI/ML", label: "Specialization", icon: Zap },
+    { value: "5+", label: "Projects", icon: Target },
+  ];
+
   return (
-    <section id="about" className="section-padding relative" ref={ref}>
+    <section id="about" className="section-padding relative overflow-hidden" ref={ref}>
+      {/* Background elements */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/50 to-background" />
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+        className="absolute -right-64 top-1/4 w-[500px] h-[500px] border border-primary/10 rounded-full"
+      />
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
+        className="absolute -right-48 top-1/4 w-[400px] h-[400px] border border-primary/5 rounded-full"
+      />
       
       <div className="container-custom relative z-10">
         <motion.div
@@ -36,7 +53,15 @@ const AboutSection = () => {
           transition={{ duration: 0.6 }}
           className="mb-16"
         >
-          <span className="text-primary text-sm font-medium uppercase tracking-widest">About Me</span>
+          <motion.span 
+            initial={{ opacity: 0, x: -20 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 text-primary text-sm font-medium uppercase tracking-widest"
+          >
+            <span className="w-8 h-px bg-primary" />
+            About Me
+          </motion.span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold mt-4">
             My Background &<br />
             <span className="text-gradient">Career Focus</span>
@@ -63,24 +88,29 @@ const AboutSection = () => {
               that challenge me to apply theoretical knowledge to real-world scenarios.
             </p>
 
-            {/* Stats */}
+            {/* Enhanced Stats */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 rounded-lg bg-secondary/50 border border-border">
-                <div className="text-3xl font-heading font-bold text-gradient">2027</div>
-                <div className="text-xs text-muted-foreground mt-1">Expected Graduation</div>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-secondary/50 border border-border">
-                <div className="text-3xl font-heading font-bold text-gradient">AI/ML</div>
-                <div className="text-xs text-muted-foreground mt-1">Specialization</div>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-secondary/50 border border-border">
-                <div className="text-3xl font-heading font-bold text-gradient">5+</div>
-                <div className="text-xs text-muted-foreground mt-1">Projects</div>
-              </div>
+              {stats.map((stat, index) => (
+                <motion.div 
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  className="relative group text-center p-4 rounded-xl bg-secondary/50 border border-border overflow-hidden"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
+                  <stat.icon size={16} className="mx-auto mb-2 text-primary opacity-50" />
+                  <div className="text-2xl sm:text-3xl font-heading font-bold text-gradient">{stat.value}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
 
-          {/* Highlights */}
+          {/* Enhanced Highlights */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
@@ -90,18 +120,31 @@ const AboutSection = () => {
             {highlights.map((item, index) => (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                className="flex gap-4 p-6 rounded-xl bg-card border border-border card-hover"
+                initial={{ opacity: 0, x: 30 }}
+                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                transition={{ duration: 0.5, delay: 0.4 + index * 0.15 }}
+                whileHover={{ x: 10, scale: 1.02 }}
+                className="flex gap-4 p-6 rounded-xl bg-card border border-border group cursor-default transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
               >
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <item.icon className="text-primary" size={24} />
-                </div>
+                <motion.div 
+                  whileHover={{ rotate: 10 }}
+                  className="flex-shrink-0 w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors"
+                >
+                  <item.icon className="text-primary" size={26} />
+                </motion.div>
                 <div>
-                  <h3 className="font-heading font-semibold mb-1">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                  <h3 className="font-heading font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
                 </div>
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary"
+                >
+                  →
+                </motion.div>
               </motion.div>
             ))}
           </motion.div>
