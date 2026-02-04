@@ -6,6 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
+interface FormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
 const contactInfo = [
   {
     icon: Phone,
@@ -39,20 +46,56 @@ const ContactSection = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Message Sent!",
-        description: "Thank you for reaching out. I'll get back to you soon!",
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
-      (e.target as HTMLFormElement).reset();
-    }, 1000);
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Message Sent!",
+          description: "Thank you for reaching out. I'll get back to you soon!",
+        });
+        setFormData({ name: "", email: "", subject: "", message: "" });
+        (e.target as HTMLFormElement).reset();
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to send message. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -192,8 +235,11 @@ const ContactSection = () => {
                   transition={{ duration: 0.2 }}
                 >
                   <Input
+                    name="name"
                     placeholder="Your Name"
                     required
+                    value={formData.name}
+                    onChange={handleInputChange}
                     onFocus={() => setFocusedField("name")}
                     onBlur={() => setFocusedField(null)}
                     className="bg-card border-border focus:border-primary transition-all"
@@ -205,8 +251,11 @@ const ContactSection = () => {
                 >
                   <Input
                     type="email"
+                    name="email"
                     placeholder="Your Email"
                     required
+                    value={formData.email}
+                    onChange={handleInputChange}
                     onFocus={() => setFocusedField("email")}
                     onBlur={() => setFocusedField(null)}
                     className="bg-card border-border focus:border-primary transition-all"
@@ -218,8 +267,11 @@ const ContactSection = () => {
                 transition={{ duration: 0.2 }}
               >
                 <Input
+                  name="subject"
                   placeholder="Subject"
                   required
+                  value={formData.subject}
+                  onChange={handleInputChange}
                   onFocus={() => setFocusedField("subject")}
                   onBlur={() => setFocusedField(null)}
                   className="bg-card border-border focus:border-primary transition-all"
@@ -230,9 +282,12 @@ const ContactSection = () => {
                 transition={{ duration: 0.2 }}
               >
                 <Textarea
+                  name="message"
                   placeholder="Your Message"
                   rows={5}
                   required
+                  value={formData.message}
+                  onChange={handleInputChange}
                   onFocus={() => setFocusedField("message")}
                   onBlur={() => setFocusedField(null)}
                   className="bg-card border-border focus:border-primary resize-none transition-all"
